@@ -297,34 +297,34 @@
         <div class="container mx-auto px-6 py-3">
              <nav id="navbar" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg border border-gray-200/80 dark:border-gray-700/80 rounded-xl px-6 py-3 flex justify-between items-center transition-shadow duration-300">
                 <h1 class="text-2xl font-bold tracking-tighter text-gray-900 dark:text-white">Calfinity</h1>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#about" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">About</a>
-                    <a href="#features" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Features</a>
-                    <a href="#notify-me" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Get Notified</a>
-                    <a href="#faq" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">FAQ</a>
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="#about" class="interactive-element px-3 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" role="link">About</a>
+                    <a href="#features" class="interactive-element px-3 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" role="link">Features</a>
+                    <a href="#notify-me" class="interactive-element px-3 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" role="link">Get Notified</a>
+                    <a href="#faq" class="interactive-element px-3 py-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200" role="link">FAQ</a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button id="theme-toggle" type="button" class="interactive-element p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600">
+                    <button id="theme-toggle" type="button" aria-label="Toggle theme" aria-pressed="false" class="interactive-element p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600">
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
                         <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 12.02l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414-1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
                     </button>
-                    <button id="mobile-menu-button" class="interactive-element md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <button id="mobile-menu-button" aria-controls="mobile-nav" aria-expanded="false" aria-label="Open menu" class="interactive-element md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                     </button>
                 </div>
             </nav>
         </div>
     </header>
-    <div id="mobile-nav-overlay" class="fixed inset-0 bg-black/30 z-[60] hidden md:hidden"></div>
-    <div id="mobile-nav" class="fixed top-0 right-0 h-full w-2/3 max-w-sm bg-white dark:bg-gray-800 z-[70] shadow-xl p-8 md:hidden">
-        <button id="mobile-menu-close" class="absolute top-6 right-6 p-2 text-gray-500 dark:text-gray-400">
+    <div id="mobile-nav-overlay" class="fixed inset-0 bg-black/30 z-[60] hidden md:hidden" aria-hidden="true"></div>
+    <div id="mobile-nav" class="fixed top-0 right-0 h-full w-2/3 max-w-sm bg-white dark:bg-gray-800 z-[70] shadow-xl p-8 md:hidden" role="dialog" aria-modal="true" aria-hidden="true">
+        <button id="mobile-menu-close" aria-label="Close menu" class="absolute top-6 right-6 p-2 text-gray-500 dark:text-gray-400">
              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
         </button>
         <div class="flex flex-col space-y-6 mt-12 text-lg">
-             <a href="#about" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">About</a>
-             <a href="#features" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">Features</a>
-             <a href="#notify-me" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">Get Notified</a>
-             <a href="#faq" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">FAQ</a>
+             <a href="#about" class="mobile-nav-link interactive-element px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-emerald-500">About</a>
+             <a href="#features" class="mobile-nav-link interactive-element px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-emerald-500">Features</a>
+             <a href="#notify-me" class="mobile-nav-link interactive-element px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-emerald-500">Get Notified</a>
+             <a href="#faq" class="mobile-nav-link interactive-element px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-emerald-500">FAQ</a>
         </div>
     </div>
 
@@ -729,26 +729,99 @@
             });
         });
 
-        // --- Mobile Navigation ---
+        // --- Mobile Navigation (improved accessibility & behavior) ---
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenuCloseButton = document.getElementById('mobile-menu-close');
         const mobileNav = document.getElementById('mobile-nav');
         const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
         const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-        function openMobileMenu() { 
-            mobileNav.classList.add('open'); 
-            mobileNavOverlay.classList.remove('hidden'); 
-            document.body.style.overflow = 'hidden'; 
+
+        let lastFocusedElement = null;
+        let mobileKeydownHandler = null;
+
+        function setMobileAria(open) {
+            mobileMenuButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+            mobileMenuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+            mobileNav.setAttribute('aria-hidden', open ? 'false' : 'true');
+            mobileNavOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
         }
-        function closeMobileMenu() { 
+
+        function trapFocusInMobileNav(e) {
+            const focusable = mobileNav.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (e.key === 'Tab') {
+                if (e.shiftKey) { // shift + tab
+                    if (document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    }
+                } else { // tab
+                    if (document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            }
+
+            if (e.key === 'Escape') {
+                closeMobileMenu();
+            }
+        }
+
+        function openMobileMenu() {
+            lastFocusedElement = document.activeElement;
+            mobileNav.classList.add('open');
+            mobileNavOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setMobileAria(true);
+            // set focus to first link
+            const firstLink = mobileNav.querySelector('.mobile-nav-link');
+            if (firstLink) firstLink.focus();
+
+            // add keydown handler for focus trap and Escape
+            mobileKeydownHandler = trapFocusInMobileNav;
+            document.addEventListener('keydown', mobileKeydownHandler);
+        }
+
+        function closeMobileMenu() {
             mobileNav.classList.remove('open');
-            mobileNavOverlay.classList.add('hidden'); 
-            document.body.style.overflow = ''; 
+            mobileNavOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+            setMobileAria(false);
+            // remove keydown handler
+            if (mobileKeydownHandler) {
+                document.removeEventListener('keydown', mobileKeydownHandler);
+                mobileKeydownHandler = null;
+            }
+            // restore focus
+            if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+                lastFocusedElement.focus();
+            }
+            lastFocusedElement = null;
         }
-        mobileMenuButton.addEventListener('click', openMobileMenu);
+
+        mobileMenuButton.addEventListener('click', () => {
+            const expanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            if (expanded) closeMobileMenu(); else openMobileMenu();
+        });
         mobileMenuCloseButton.addEventListener('click', closeMobileMenu);
         mobileNavOverlay.addEventListener('click', closeMobileMenu);
         mobileNavLinks.forEach(link => link.addEventListener('click', closeMobileMenu));
+
+        // Auto-close mobile menu when resizing to desktop breakpoint
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // Tailwind's md breakpoint is 768px; if wider, ensure mobile menu is closed
+                if (window.innerWidth >= 768 && mobileNav.classList.contains('open')) {
+                    closeMobileMenu();
+                }
+            }, 150);
+        });
         
         // --- Testimonial Slider ---
         const sliderTrack = document.querySelector('.testimonial-slider-track');
