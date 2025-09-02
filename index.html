@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calfinity - AI Nutrition & Meal Tracker</title>
+    <link rel="icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +88,11 @@
         
         /* Chart Bar Animation */
         .chart-bar {
+            min-height: 10px;
+            min-width: 24px;
+            width: 100%;
+            display: block;
+            background-color: #d1d5db; /* fallback gray */
             transform: scaleY(0);
             transform-origin: bottom;
             transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -181,6 +187,56 @@
             transform: translateX(0);
         }
 
+        /* Enhanced Back to Top Button */
+        #back-to-top {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            backdrop-filter: blur(10px);
+        }
+        
+        #back-to-top:hover {
+            transform: scale(1.1) translateY(-2px);
+        }
+
+        /* Hero Section Responsive Improvements */
+        @media (min-width: 1024px) {
+            .hero-text-container {
+                padding-right: 2rem;
+            }
+            
+            .hero-mockup-container {
+                padding-left: 2rem;
+            }
+        }
+        
+        @media (max-width: 1023px) {
+            .hero-section {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+        }
+
+        /* Ensure proper spacing on all screen sizes */
+        .container-responsive {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        @media (min-width: 640px) {
+            .container-responsive {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container-responsive {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
     </style>
 </head>
 
@@ -238,28 +294,30 @@
     </div>
 
 
-    <main class="container mx-auto px-6">
+    <main class="container-responsive">
 
         <!-- Hero Section -->
-        <section class="relative min-h-screen flex items-center pt-28 pb-12">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div class="text-center lg:text-left">
-                    <h2 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-4 leading-tight reveal">
+        <section class="relative min-h-screen flex items-center pt-28 pb-12 hero-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center w-full">
+                <!-- Text Content -->
+                <div class="text-center lg:text-left order-2 lg:order-1 hero-text-container">
+                    <h2 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-6 leading-tight reveal">
                         Healthy Living, <br> <span class="gradient-text">Simplified.</span>
                     </h2>
-                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 reveal" style="transition-delay: 0.2s;">
+                    <p class="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 reveal" style="transition-delay: 0.2s;">
                         Calfinity brings AI-powered food scanning, personalized goals, and macro tracking into one seamless Flutter app. Achieve your health goals with a stunning, clean design.
                     </p>
                     <div class="flex justify-center lg:justify-start space-x-4 reveal" style="transition-delay: 0.4s;">
-                        <a href="#get-the-app" class="interactive-element bg-emerald-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:bg-emerald-600 transform hover:scale-105 transition-all duration-300">
+                        <a href="#get-the-app" class="interactive-element bg-emerald-500 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:bg-emerald-600 transform hover:scale-105 transition-all duration-300">
                             Get Notified
                         </a>
                     </div>
                 </div>
-                <div class="relative flex justify-center items-center reveal" style="transition-delay: 0.3s;">
-                    <div class="relative w-72 h-[580px]">
-                        <div class="w-full h-full rounded-[40px] bg-gray-900 dark:bg-gray-800 border-8 border-gray-900 dark:border-gray-700 shadow-2xl overflow-hidden">
-                            <img src="https://i.ibb.co/Lh20VjJr/Screenshot-2025-09-01-04-59-39-69_5ba3bfbc469fde99599c79755a28442f.jpg" alt="Calfinity app screenshot" class="w-full h-full object-cover rounded-[32px]">
+                <!-- Mockup -->
+                <div class="relative flex justify-center lg:justify-end items-center order-1 lg:order-2 hero-mockup-container reveal" style="transition-delay: 0.3s;">
+                    <div class="relative w-64 sm:w-72 h-[520px] sm:h-[580px]">
+                        <div class="w-full h-full rounded-[32px] sm:rounded-[40px] bg-gray-900 dark:bg-gray-800 border-6 sm:border-8 border-gray-900 dark:border-gray-700 shadow-2xl overflow-hidden">
+                            <img src="https://i.ibb.co/Lh20VjJr/Screenshot-2025-09-01-04-59-39-69_5ba3bfbc469fde99599c79755a28442f.jpg" alt="Calfinity app screenshot" class="w-full h-full object-cover rounded-[26px] sm:rounded-[32px]">
                         </div>
                     </div>
                 </div>
@@ -366,14 +424,14 @@
                 <div class="marquee-track">
                     <!-- Tech Logos (duplicated for smooth loop) -->
                     <img src="https://cdn.iconscout.com/icon/free/png-256/free-flutter-logo-icon-svg-png-download-1720090.png" alt="Flutter Logo" class="h-10 w-auto object-contain opacity-70">
-                    <img src="https://seeklogo.com/vector-logo/623016/google-gemini-icon" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/1200px-Google_Gemini_logo.svg.png" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://freelogopng.com/images/all_img/1681142315open-ai-logo.png" alt="OpenAI Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://www.gstatic.com/devrel-devsite/prod/v8a38e499423b6e64664446c6bb8c3f06d3bbb8c3153ec81b5cfa22b086049d9c/firebase/images/touchicon-180.png" alt="Firebase Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/2560px-Tailwind_CSS_Logo.svg.png" alt="Tailwind CSS Logo" class="h-10 w-auto object-contain opacity-70">
                     
                     <!-- Duplicated set for seamless loop -->
                     <img src="https://cdn.iconscout.com/icon/free/png-256/free-flutter-logo-icon-svg-png-download-1720090.png" alt="Flutter Logo" class="h-10 w-auto object-contain opacity-70">
-                    <img src="https://seeklogo.com/vector-logo/623016/google-gemini-icon" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/1200px-Google_Gemini_logo.svg.png" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://freelogopng.com/images/all_img/1681142315open-ai-logo.png" alt="OpenAI Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://www.gstatic.com/devrel-devsite/prod/v8a38e499423b6e64664446c6bb8c3f06d3bbb8c3153ec81b5cfa22b086049d9c/firebase/images/touchicon-180.png" alt="Firebase Logo" class="h-10 w-auto object-contain opacity-70">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/2560px-Tailwind_CSS_Logo.svg.png" alt="Tailwind CSS Logo" class="h-10 w-auto object-contain opacity-70">
@@ -468,7 +526,11 @@
             </div>
         </div>
     </footer>
-    <button id="back-to-top" class="interactive-element hidden fixed bottom-6 right-6 bg-emerald-500 text-white p-3 rounded-full shadow-lg hover:bg-emerald-600 transition-all duration-300 transform scale-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button>
+    <button id="back-to-top" class="interactive-element hidden fixed bottom-6 right-6 bg-emerald-500 text-white p-3 rounded-full shadow-lg hover:bg-emerald-600 hover:shadow-xl transition-all duration-300 transform scale-0 z-50 border-2 border-emerald-400/20">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+        </svg>
+    </button>
     <div id="cookie-banner" class="hidden fixed bottom-0 inset-x-0 pb-2 sm:pb-5 z-40"><div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8"><div class="p-2 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sm:p-3 border border-gray-200/80 dark:border-gray-700/80"><div class="flex items-center justify-between flex-wrap"><div class="w-0 flex-1 flex items-center"><p class="ml-3 font-medium text-gray-900 dark:text-white"><span class="md-hidden">We use cookies to improve your experience.</span><span class="hidden md:inline">This website uses cookies to ensure you get the best experience on our website.</span></p></div><div class="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto"><button id="accept-cookies" class="interactive-element flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600">Accept</button></div></div></div></div></div>
 
     <!-- External Libraries -->
@@ -539,6 +601,7 @@
             }
         });
         
+
         // --- Scroll Animations (with Staggering) ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -552,10 +615,10 @@
                     } else if (entry.target.classList.contains('reveal')) {
                         entry.target.classList.add('reveal-visible');
                     }
-                    // FIX: Added chart animation trigger
+                    // Chart animation trigger
                     if (entry.target.id === 'chart-container') {
                         document.querySelectorAll('.chart-bar').forEach(bar => {
-                           bar.classList.add('animate');
+                            bar.classList.add('animate');
                         });
                     }
                     observer.unobserve(entry.target);
@@ -563,6 +626,19 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.reveal, .stagger-container').forEach(el => observer.observe(el));
+
+        // --- Ensure chart bars animate if chart is already visible on load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartContainer = document.getElementById('chart-container');
+            if (chartContainer) {
+                const rect = chartContainer.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    document.querySelectorAll('.chart-bar').forEach(bar => {
+                        bar.classList.add('animate');
+                    });
+                }
+            }
+        });
 
         // --- Dark Mode Toggle ---
         const themeToggleBtn = document.getElementById('theme-toggle');
@@ -586,15 +662,28 @@
         window.addEventListener('scroll', () => {
             if (window.scrollY > 20) navbar.classList.add('header-scrolled');
             else navbar.classList.remove('header-scrolled');
-            if (window.scrollY > 300) {
+            
+            // Show back to top button after scrolling 200px
+            if (window.scrollY > 200) {
                 backToTopButton.classList.remove('hidden');
                 backToTopButton.classList.remove('scale-0');
+                backToTopButton.classList.add('scale-100');
             } else {
                 backToTopButton.classList.add('scale-0');
-                setTimeout(() => { if (window.scrollY <= 300) backToTopButton.classList.add('hidden'); }, 300);
+                backToTopButton.classList.remove('scale-100');
+                setTimeout(() => { 
+                    if (window.scrollY <= 200) backToTopButton.classList.add('hidden'); 
+                }, 300);
             }
         });
-        backToTopButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        
+        // Enhanced smooth scroll to top
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ 
+                top: 0, 
+                behavior: 'smooth' 
+            });
+        });
 
         // --- Mobile Navigation ---
         const mobileMenuButton = document.getElementById('mobile-menu-button');
