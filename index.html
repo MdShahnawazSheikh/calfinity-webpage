@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calfinity - AI Nutrition & Meal Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        // Set theme on page load to prevent FOUC (Flash of Unstyled Content)
+        if (localStorage.theme === 'dark') {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+
+        // Configure Tailwind for dark mode
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Figtree', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* Default cursor is now visible */
+        }
+        
+        /* Custom Follower Cursor */
+        .cursor-follower {
+            pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out, width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.3s ease-out;
+        }
+
+        .cursor-follower.hovered {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .cursor-hidden {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.5);
+        }
+
+        /* Preloader styles */
+        #preloader {
+            transition: opacity 0.5s ease-out;
+        }
+        .preloader-text {
+            animation: pulse-text 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-text {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.7;
+            }
+        }
+
+        /* Scroll-reveal animation setup */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .reveal-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Chart Bar Animation */
+        .chart-bar {
+            transform: scaleY(0);
+            transform-origin: bottom;
+            transition: transform 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .chart-bar.animate {
+            transform: scaleY(1);
+        }
+
+
+        /* Animated Gradient Text */
+        .gradient-text {
+            background: linear-gradient(90deg, #2563EB, #10B981, #F59E0B, #2563EB);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 5s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        /* Style for header when scrolled */
+        .header-scrolled {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Bento Card 3D Tilt Effect */
+        .bento-card {
+            transform-style: preserve-3d;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card-sheen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 60%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+        /* Infinite Marquee Scroller */
+        .marquee {
+            overflow: hidden;
+            position: relative;
+            white-space: nowrap;
+        }
+        .marquee-track {
+            display: flex;
+            align-items: center; /* Vertically center logos */
+            animation: marquee 40s linear infinite;
+        }
+        .marquee-track > * {
+            flex-shrink: 0;
+            margin: 0 2.5rem; /* 10 in tailwind */
+        }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* Animated background glows */
+        .glow-1 {
+            animation: glow-1-anim 20s ease-in-out infinite;
+        }
+        .glow-2 {
+            animation: glow-2-anim 25s ease-in-out infinite;
+        }
+        @keyframes glow-1-anim {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 50px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        @keyframes glow-2-anim {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-80px, -40px) rotate(-180deg); }
+            100% { transform: translate(0, 0) rotate(-360deg); }
+        }
+
+        /* Mobile Menu Transitions */
+        #mobile-nav {
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #mobile-nav.open {
+            transform: translateX(0);
+        }
+
+    </style>
+</head>
+
+<body class="overflow-x-hidden antialiased bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-200 transition-colors duration-300">
+    
+    <!-- Background decorative glows -->
+    <div class="absolute top-0 left-0 w-full h-full z-[-2] overflow-hidden">
+        <div class="glow-1 absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-emerald-500/10 dark:bg-emerald-500/20 rounded-full blur-3xl opacity-50"></div>
+        <div class="glow-2 absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-3xl opacity-50"></div>
+    </div>
+
+
+    <!-- Custom Cursor Follower -->
+    <div class="cursor-follower"></div>
+
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-gray-50 dark:bg-gray-900 z-[100] flex justify-center items-center">
+        <h1 class="text-3xl font-bold tracking-tighter text-gray-800 dark:text-white preloader-text">Calfinity</h1>
+    </div>
+
+    <!-- Header & Nav -->
+    <header class="fixed top-0 left-0 right-0 z-50" id="header-container">
+        <div class="container mx-auto px-6 py-3">
+             <nav id="navbar" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-lg border border-gray-200/80 dark:border-gray-700/80 rounded-xl px-6 py-3 flex justify-between items-center transition-shadow duration-300">
+                <h1 class="text-2xl font-bold tracking-tighter text-gray-900 dark:text-white">Calfinity</h1>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">About</a>
+                    <a href="#features" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Features</a>
+                    <a href="#notify-me" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Get Notified</a>
+                    <a href="#faq" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-300">FAQ</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="theme-toggle" type="button" class="interactive-element p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm-.707 12.02l.707-.707a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414-1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                    <button id="mobile-menu-button" class="interactive-element md:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <div id="mobile-nav-overlay" class="fixed inset-0 bg-black/30 z-[60] hidden md:hidden"></div>
+    <div id="mobile-nav" class="fixed top-0 right-0 h-full w-2/3 max-w-sm bg-white dark:bg-gray-800 z-[70] shadow-xl p-8 md:hidden">
+        <button id="mobile-menu-close" class="absolute top-6 right-6 p-2 text-gray-500 dark:text-gray-400">
+             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="flex flex-col space-y-6 mt-12 text-lg">
+             <a href="#about" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">About</a>
+             <a href="#features" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">Features</a>
+             <a href="#notify-me" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">Get Notified</a>
+             <a href="#faq" class="mobile-nav-link text-gray-700 dark:text-gray-300 hover:text-emerald-500">FAQ</a>
+        </div>
+    </div>
+
+
+    <main class="container mx-auto px-6">
+
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex items-center pt-28 pb-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="text-center lg:text-left">
+                    <h2 class="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-4 leading-tight reveal">
+                        Healthy Living, <br> <span class="gradient-text">Simplified.</span>
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl mx-auto lg:mx-0 mb-8 reveal" style="transition-delay: 0.2s;">
+                        Calfinity brings AI-powered food scanning, personalized goals, and macro tracking into one seamless Flutter app. Achieve your health goals with a stunning, clean design.
+                    </p>
+                    <div class="flex justify-center lg:justify-start space-x-4 reveal" style="transition-delay: 0.4s;">
+                        <a href="#get-the-app" class="interactive-element bg-emerald-500 text-white font-semibold px-8 py-3 rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 hover:bg-emerald-600 transform hover:scale-105 transition-all duration-300">
+                            Get Notified
+                        </a>
+                    </div>
+                </div>
+                <div class="relative flex justify-center items-center reveal" style="transition-delay: 0.3s;">
+                    <div class="relative w-72 h-[580px]">
+                        <div class="w-full h-full rounded-[40px] bg-gray-900 dark:bg-gray-800 border-8 border-gray-900 dark:border-gray-700 shadow-2xl overflow-hidden">
+                            <img src="https://i.ibb.co/Lh20VjJr/Screenshot-2025-09-01-04-59-39-69_5ba3bfbc469fde99599c79755a28442f.jpg" alt="Calfinity app screenshot" class="w-full h-full object-cover rounded-[32px]">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 lg:py-32">
+            <div class="text-center max-w-3xl mx-auto">
+                <h3 class="text-sm font-bold uppercase tracking-widest text-emerald-500 mb-4 reveal">Our Mission</h3>
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-6 reveal" style="transition-delay: 0.2s;">A Modern Approach to Nutrition</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 reveal" style="transition-delay: 0.4s;">
+                    Calfinity brings together everything you need for healthier living in one place — from AI-powered food scanning to personalized calorie goals, macro tracking, and analytics — all with a sleek, user-friendly design.
+                </p>
+            </div>
+        </section>
+
+        <!-- Sticky Scroll "How it Works" Section -->
+        <section id="how-it-works" class="py-20 lg:py-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div class="lg:sticky top-24 h-screen max-h-80">
+                    <div class="reveal">
+                        <h3 class="text-sm font-bold uppercase tracking-widest text-blue-500 mb-4">How It Works</h3>
+                        <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tighter">Get Started in Three Easy Steps</h2>
+                    </div>
+                </div>
+                <div class="space-y-24">
+                    <div class="reveal">
+                        <div class="mb-4 bg-blue-500/10 text-blue-600 rounded-xl w-16 h-16 flex items-center justify-center text-2xl font-bold">1</div>
+                        <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Scan Your Food</h4>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">Just snap a photo. Our AI instantly identifies your meal and logs the nutritional information for you. No more manual entry, just effortless tracking.</p>
+                    </div>
+                    <div class="reveal">
+                        <div class="mb-4 bg-emerald-500/10 text-emerald-600 rounded-xl w-16 h-16 flex items-center justify-center text-2xl font-bold">2</div>
+                        <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Track Your Progress</h4>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">Watch your daily calories and macros update in real-time with our intuitive charts and visuals. See your progress at a glance and stay motivated.</p>
+                    </div>
+                    <div class="reveal">
+                        <div class="mb-4 bg-amber-500/10 text-amber-600 rounded-xl w-16 h-16 flex items-center justify-center text-2xl font-bold">3</div>
+                        <h4 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Achieve Your Goals</h4>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">Follow your personalized plan and insights to build healthy habits and reach your wellness targets. Calfinity is your partner in building a better you.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- Features Section (Bento Grid with 3D Tilt) -->
+        <section id="features" class="relative py-20 lg:py-24">
+            <div class="text-center mb-16">
+                 <h3 class="text-sm font-bold uppercase tracking-widest text-emerald-500 mb-4 reveal">Features</h3>
+                 <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tighter reveal" style="transition-delay: 0.2s;">Everything You Need to Succeed</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 stagger-container">
+                <!-- Card 1 (Large with Video) -->
+                <div class="bento-card group col-span-1 md:col-span-3 lg:col-span-2 row-span-2 bg-gray-900 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm transition-all duration-300 reveal flex flex-col justify-between">
+                    <video class="absolute top-0 left-0 w-full h-full object-cover rounded-2xl opacity-20" autoplay loop muted playsinline>
+                        <source src="https://cdn.pixabay.com/video/2023/04/13/159873-81788255_large.mp4" type="video/mp4">
+                    </video>
+                    <div class="relative">
+                        <div class="mb-4 bg-emerald-500/10 text-emerald-600 rounded-lg w-12 h-12 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="m15.5 14-3-3-3 3"/><path d="M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"/><path d="M12 11v1"/></svg></div>
+                        <h4 class="text-xl font-bold text-white mb-2">AI Food Scanning</h4>
+                        <p class="text-gray-300">Utilize the Gemini API to instantly recognize food items from a photo, making logging your meals effortless.</p>
+                    </div>
+                    <div class="bento-card-sheen"></div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bento-card group col-span-1 md:col-span-1 lg:col-span-2 bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm transition-all duration-300 reveal">
+                    <div class="mb-4 bg-blue-500/10 text-blue-600 rounded-lg w-12 h-12 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+                    <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Personalized Goals</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Get custom calorie and macronutrient targets based on your personal health goals.</p>
+                    <div class="bento-card-sheen"></div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bento-card group col-span-1 md:col-span-1 lg:col-span-1 bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm transition-all duration-300 reveal">
+                     <div class="mb-4 bg-amber-500/10 text-amber-600 rounded-lg w-12 h-12 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
+                    <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Macro Tracking</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Monitor protein, carbs, and fats.</p>
+                    <div class="bento-card-sheen"></div>
+                </div>
+                 <!-- Card 4 -->
+                <div class="bento-card group col-span-1 md:col-span-1 lg:col-span-1 bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm transition-all duration-300 reveal">
+                    <div class="mb-4 bg-rose-500/10 text-rose-600 rounded-lg w-12 h-12 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/></svg></div>
+                    <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Meal Cards</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Log meals on elegant cards.</p>
+                    <div class="bento-card-sheen"></div>
+                </div>
+                 <!-- Card 5 -->
+                <div class="bento-card group col-span-1 md:col-span-1 lg:col-span-2 bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm transition-all duration-300 reveal">
+                    <div class="mb-4 bg-sky-500/10 text-sky-600 rounded-lg w-12 h-12 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10Z"/></svg></div>
+                    <h4 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Cloud Sync & Offline Mode</h4>
+                    <p class="text-gray-600 dark:text-gray-400">Seamlessly sync data across devices with secure Google Sign-In and track meals anytime, anywhere.</p>
+                    <div class="bento-card-sheen"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Powered By Section (Marquee) -->
+        <section class="py-20 lg:py-24">
+            <div class="text-center">
+                 <h3 class="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-8 reveal">Powered by Modern Technology</h3>
+            </div>
+            <div class="marquee reveal" style="transition-delay: 0.2s;">
+                <div class="marquee-track">
+                    <!-- Tech Logos (duplicated for smooth loop) -->
+                    <img src="https://cdn.iconscout.com/icon/free/png-256/free-flutter-logo-icon-svg-png-download-1720090.png" alt="Flutter Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://seeklogo.com/vector-logo/623016/google-gemini-icon" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://freelogopng.com/images/all_img/1681142315open-ai-logo.png" alt="OpenAI Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://www.gstatic.com/devrel-devsite/prod/v8a38e499423b6e64664446c6bb8c3f06d3bbb8c3153ec81b5cfa22b086049d9c/firebase/images/touchicon-180.png" alt="Firebase Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/2560px-Tailwind_CSS_Logo.svg.png" alt="Tailwind CSS Logo" class="h-10 w-auto object-contain opacity-70">
+                    
+                    <!-- Duplicated set for seamless loop -->
+                    <img src="https://cdn.iconscout.com/icon/free/png-256/free-flutter-logo-icon-svg-png-download-1720090.png" alt="Flutter Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://seeklogo.com/vector-logo/623016/google-gemini-icon" alt="Google Gemini Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://freelogopng.com/images/all_img/1681142315open-ai-logo.png" alt="OpenAI Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://www.gstatic.com/devrel-devsite/prod/v8a38e499423b6e64664446c6bb8c3f06d3bbb8c3153ec81b5cfa22b086049d9c/firebase/images/touchicon-180.png" alt="Firebase Logo" class="h-10 w-auto object-contain opacity-70">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/2560px-Tailwind_CSS_Logo.svg.png" alt="Tailwind CSS Logo" class="h-10 w-auto object-contain opacity-70">
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials, Analytics, FAQ Sections -->
+        <section class="py-20 lg:py-24">
+            <div class="max-w-4xl mx-auto text-center">
+                 <h2 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-12 reveal">Loved by health enthusiasts everywhere</h2>
+                 <div id="testimonial-slider" class="relative overflow-hidden reveal">
+                     <div class="testimonial-slider-track flex transition-transform duration-500 ease-in-out">
+                        <div class="w-full flex-shrink-0 px-4"><div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm"><p class="text-gray-700 dark:text-gray-300 mb-4">"Calfinity has completely changed how I approach my diet. The AI scanning is magic, and it's so easy to stay on track. I've never felt better!"</p><p class="font-bold text-gray-900 dark:text-white">- Sarah J.</p></div></div>
+                        <div class="w-full flex-shrink-0 px-4"><div class="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-gray-200/80 dark:border-gray-700/80 shadow-sm"><p class="text-gray-700 dark:text-gray-300 mb-4">"As a fitness coach, I recommend this app to all my clients. The design is beautiful, and the features are powerful yet simple to use. A must-have."</p><p class="font-bold text-gray-900 dark:text-white">- Mike R.</p></div></div>
+                     </div>
+                     <button id="testimonial-prev" class="interactive-element absolute top-1/2 left-0 transform -translate-y-1/2 bg-white/50 dark:bg-gray-700/50 p-2 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"><svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
+                      <button id="testimonial-next" class="interactive-element absolute top-1/2 right-0 transform -translate-y-1/2 bg-white/50 dark:bg-gray-700/50 p-2 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors"><svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
+                 </div>
+            </div>
+        </section>
+        <section id="analytics" class="py-20 lg:py-32">
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div id="chart-container" class="reveal w-full max-w-lg p-6 rounded-2xl shadow-sm bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 mx-auto" style="transition-delay: 0.2s;"><div class="mb-4"><span class="font-bold text-lg text-gray-900 dark:text-white">Weekly Progress</span></div><div class="h-64 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 flex items-end justify-around"><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 60%; transition-delay: 0s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Mon</span></div><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 75%; transition-delay: 0.1s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Tue</span></div><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 50%; transition-delay: 0.2s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Wed</span></div><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 85%; transition-delay: 0.3s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Thu</span></div><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 65%; transition-delay: 0.4s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Fri</span></div><div class="w-10 text-center group"><div class="chart-bar bg-red-300 dark:bg-red-500/80 group-hover:bg-red-400 rounded-t-lg mx-auto transition-colors" style="height: 95%; transition-delay: 0.5s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Sat</span></div><div class="w-10 text-center group"><div class="chart-bar bg-gray-200 dark:bg-gray-600 group-hover:bg-emerald-400 rounded-t-lg mx-auto transition-colors" style="height: 70%; transition-delay: 0.6s"></div><span class="text-xs mt-2 block text-gray-500 dark:text-gray-400">Sun</span></div></div></div>
+                 <div class="text-center lg:text-left"><h3 class="text-sm font-bold uppercase tracking-widest text-amber-500 mb-4 reveal">Analytics</h3><h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-6 reveal" style="transition-delay: 0.2s;">Visualize Your Journey</h2><p class="text-lg text-gray-600 dark:text-gray-400 reveal" style="transition-delay: 0.4s;">Track your progress with insightful charts and visualizations. Understand your eating habits, monitor your macro intake over time, and stay motivated by seeing how far you've come.</p></div>
+            </div>
+        </section>
+        <section id="faq" class="py-20 lg:py-24">
+            <div class="max-w-3xl mx-auto stagger-container"><div class="text-center mb-12"><h2 class="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tighter reveal">Frequently Asked Questions</h2></div><div class="space-y-4"><details class="group bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200/80 dark:border-gray-700/80 shadow-sm cursor-pointer reveal interactive-element"><summary class="flex items-center justify-between font-semibold text-gray-900 dark:text-white">Is Calfinity available on both iOS and Android?<svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><p class="mt-4 text-gray-600 dark:text-gray-400">Not yet! Calfinity is launching soon. You can sign up with your email to be the first to know when it's available on both the Google Play Store and the Apple App Store.</p></details><details class="group bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200/80 dark:border-gray-700/80 shadow-sm cursor-pointer reveal interactive-element"><summary class="flex items-center justify-between font-semibold text-gray-900 dark:text-white">Do I need an internet connection to use the app?<svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><p class="mt-4 text-gray-600 dark:text-gray-400">You can track your meals and view your data offline, as it's stored on your device. However, you will need an internet connection for features like AI food scanning and syncing your data with Firebase.</p></details><details class="group bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200/80 dark:border-gray-700/80 shadow-sm cursor-pointer reveal interactive-element"><summary class="flex items-center justify-between font-semibold text-gray-900 dark:text-white">Is my data secure?<svg class="w-5 h-5 transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></summary><p class="mt-4 text-gray-600 dark:text-gray-400">Absolutely. We use Firebase, a secure platform from Google, for authentication and data storage. Your personal information is kept safe and private.</p></details></div></div>
+        </section>
+
+        <!-- Get The App Section -->
+        <section id="get-the-app" class="py-20 lg:py-24">
+            <div class="bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 rounded-2xl p-10 md:p-16 text-center reveal">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-4">Launching Soon</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">We're putting the finishing touches on Calfinity. Sign up to be the first to know when we launch.</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#notify-me" class="interactive-element w-full sm:w-auto bg-gray-900 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition-colors duration-300 opacity-50 cursor-pointer">
+                        <img src="https://img.icons8.com/m_rounded/512/FFFFFF/google-play.png" alt="Google Play Icon" class="w-6 h-6 mr-3">
+                        <div>
+                            <span class="text-xs">Coming soon on</span>
+                            <span class="block text-lg leading-tight">Google Play</span>
+                        </div>
+                    </a>
+                    <a href="#notify-me" class="interactive-element w-full sm:w-auto bg-gray-900 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center transition-colors duration-300 opacity-50 cursor-pointer">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Apple_logo_white.svg/1724px-Apple_logo_white.svg.png" alt="Apple Logo" class="w-6 h-6 mr-3">
+                        <div>
+                            <span class="text-xs">Coming soon on the</span>
+                            <span class="block text-lg leading-tight">App Store</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Notify Me Section -->
+        <section id="notify-me" class="pb-20 lg:pb-24">
+            <div class="max-w-3xl mx-auto text-center reveal">
+                <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tighter mb-4">Be the First to Know</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
+                    Enter your email below to get notified when Calfinity launches on iOS and Android.
+                </p>
+                <form id="notify-form" action="https://formspree.io/f/mjkeelrb" method="POST" class="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-lg mx-auto">
+                    <input type="email" name="email" placeholder="your@email.com" required class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-shadow duration-300">
+                    <button type="submit" class="interactive-element w-full sm:w-auto bg-emerald-500 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-emerald-600 transition-colors duration-300">
+                        Notify Me
+                    </button>
+                </form>
+                <p id="form-success-message" class="mt-4 text-emerald-500 hidden">Thanks! We'll be in touch.</p>
+                <p id="form-error-message" class="mt-4 text-red-500 hidden">Oops! Something went wrong.</p>
+            </div>
+        </section>
+
+
+    </main>
+
+    <!-- Footer & other elements -->
+    <footer class="border-t border-gray-200 dark:border-gray-700 mt-10 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                 <div><h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Calfinity</h3><p class="text-gray-600 dark:text-gray-400">Healthy Living, Simplified.</p></div>
+                 <div><h4 class="font-semibold text-gray-900 dark:text-white mb-3">Quick Links</h4><ul class="space-y-2"><li><a href="#features" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-emerald-500">Features</a></li><li><a href="#how-it-works" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-emerald-500">How It Works</a></li><li><a href="#faq" class="interactive-element text-gray-600 dark:text-gray-400 hover:text-emerald-500">FAQ</a></li></ul></div>
+                 <div><h4 class="font-semibold text-gray-900 dark:text-white mb-3">Follow Us</h4><div class="flex justify-center md:justify-start space-x-4">
+                    <a href="https://www.instagram.com/calfinity.app" target="_blank" rel="noopener noreferrer" class="interactive-element text-gray-500 hover:text-emerald-500">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" class="w-6 h-6">
+                    </a>
+                 </div></div>
+            </div>
+            <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8 text-center text-gray-500 dark:text-gray-400">
+                <p>&copy; 2025 Calfinity. All rights reserved.</p>
+                <a href="https://theappforge.co.in" target="_blank" rel="noopener noreferrer" class="text-sm mt-2 inline-block hover:text-emerald-500 transition-colors">An AppForge Product</a>
+            </div>
+        </div>
+    </footer>
+    <button id="back-to-top" class="interactive-element hidden fixed bottom-6 right-6 bg-emerald-500 text-white p-3 rounded-full shadow-lg hover:bg-emerald-600 transition-all duration-300 transform scale-0"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg></button>
+    <div id="cookie-banner" class="hidden fixed bottom-0 inset-x-0 pb-2 sm:pb-5 z-40"><div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8"><div class="p-2 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-lg sm:p-3 border border-gray-200/80 dark:border-gray-700/80"><div class="flex items-center justify-between flex-wrap"><div class="w-0 flex-1 flex items-center"><p class="ml-3 font-medium text-gray-900 dark:text-white"><span class="md-hidden">We use cookies to improve your experience.</span><span class="hidden md:inline">This website uses cookies to ensure you get the best experience on our website.</span></p></div><div class="order-3 mt-2 flex-shrink-0 w-full sm:order-2 sm:mt-0 sm:w-auto"><button id="accept-cookies" class="interactive-element flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-500 hover:bg-emerald-600">Accept</button></div></div></div></div></div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <script>
+        // --- Preloader ---
+        const startTime = Date.now();
+        window.addEventListener('load', () => {
+            const elapsedTime = Date.now() - startTime;
+            const minimumLoadTime = 1500; 
+            const delay = Math.max(0, minimumLoadTime - elapsedTime);
+
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                if (preloader) {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => preloader.style.display = 'none', 500);
+                }
+            }, delay);
+        });
+
+        // --- Custom Cursor ---
+        const cursorFollower = document.querySelector('.cursor-follower');
+        
+        window.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            cursorFollower.animate({
+                left: `${clientX}px`,
+                top: `${clientY}px`
+            }, { duration: 400, fill: 'forwards' });
+        });
+
+        document.body.addEventListener('mouseleave', () => cursorFollower.classList.add('cursor-hidden'));
+        document.body.addEventListener('mouseenter', () => cursorFollower.classList.remove('cursor-hidden'));
+
+        document.querySelectorAll('.interactive-element').forEach(el => {
+            el.addEventListener('mouseenter', () => cursorFollower.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursorFollower.classList.remove('hovered'));
+        });
+
+
+        // --- 3D Tilt Effect ---
+        VanillaTilt.init(document.querySelectorAll(".bento-card"), {
+            max: 10,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.2,
+            perspective: 1000,
+            scale: 1.02
+        });
+
+        const bentoCards = document.querySelectorAll('.bento-card');
+        bentoCards.forEach(card => {
+            const sheen = card.querySelector('.bento-card-sheen');
+            if (sheen) {
+                card.addEventListener('mousemove', (e) => {
+                    const { left, top, width, height } = card.getBoundingClientRect();
+                    const x = e.clientX - left;
+                    const y = e.clientY - top;
+                    sheen.style.opacity = '1';
+                    sheen.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    sheen.style.opacity = '0';
+                });
+            }
+        });
+        
+        // --- Scroll Animations (with Staggering) ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.classList.contains('stagger-container')) {
+                        const reveals = entry.target.querySelectorAll('.reveal');
+                        reveals.forEach((el, index) => {
+                            el.style.transitionDelay = `${index * 100}ms`;
+                            el.classList.add('reveal-visible');
+                        });
+                    } else if (entry.target.classList.contains('reveal')) {
+                        entry.target.classList.add('reveal-visible');
+                    }
+                    // FIX: Added chart animation trigger
+                    if (entry.target.id === 'chart-container') {
+                        document.querySelectorAll('.chart-bar').forEach(bar => {
+                           bar.classList.add('animate');
+                        });
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal, .stagger-container').forEach(el => observer.observe(el));
+
+        // --- Dark Mode Toggle ---
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        if (document.documentElement.classList.contains('dark')) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // --- Header Scroll & Back to Top Button ---
+        const navbar = document.getElementById('navbar');
+        const backToTopButton = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 20) navbar.classList.add('header-scrolled');
+            else navbar.classList.remove('header-scrolled');
+            if (window.scrollY > 300) {
+                backToTopButton.classList.remove('hidden');
+                backToTopButton.classList.remove('scale-0');
+            } else {
+                backToTopButton.classList.add('scale-0');
+                setTimeout(() => { if (window.scrollY <= 300) backToTopButton.classList.add('hidden'); }, 300);
+            }
+        });
+        backToTopButton.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // --- Mobile Navigation ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenuCloseButton = document.getElementById('mobile-menu-close');
+        const mobileNav = document.getElementById('mobile-nav');
+        const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+        function openMobileMenu() { 
+            mobileNav.classList.add('open'); 
+            mobileNavOverlay.classList.remove('hidden'); 
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeMobileMenu() { 
+            mobileNav.classList.remove('open');
+            mobileNavOverlay.classList.add('hidden'); 
+            document.body.style.overflow = ''; 
+        }
+        mobileMenuButton.addEventListener('click', openMobileMenu);
+        mobileMenuCloseButton.addEventListener('click', closeMobileMenu);
+        mobileNavOverlay.addEventListener('click', closeMobileMenu);
+        mobileNavLinks.forEach(link => link.addEventListener('click', closeMobileMenu));
+        
+        // --- Testimonial Slider ---
+        const sliderTrack = document.querySelector('.testimonial-slider-track');
+        if (sliderTrack) {
+            const slides = Array.from(sliderTrack.children);
+            const nextButton = document.getElementById('testimonial-next');
+            const prevButton = document.getElementById('testimonial-prev');
+            let slideWidth = slides.length > 0 ? slides[0].getBoundingClientRect().width : 0;
+            let currentIndex = 0;
+            let intervalId;
+
+            const updateSlide = () => {
+                if(slides.length === 0) return;
+                slideWidth = slides[0].getBoundingClientRect().width;
+                sliderTrack.style.transform = 'translateX(-' + (slideWidth * currentIndex) + 'px)';
+            };
+
+            const startAutoPlay = () => {
+                intervalId = setInterval(() => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    updateSlide();
+                }, 5000);
+            };
+
+            const stopAutoPlay = () => {
+                clearInterval(intervalId);
+            };
+
+            if (nextButton && prevButton) {
+                nextButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    updateSlide();
+                    stopAutoPlay();
+                    startAutoPlay();
+                });
+
+                prevButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    updateSlide();
+                    stopAutoPlay();
+                    startAutoPlay();
+                });
+            }
+            
+            window.addEventListener('resize', updateSlide);
+            if (slides.length > 0) {
+                updateSlide(); // Initial setup
+                startAutoPlay();
+            }
+        }
+
+        // --- Cookie Banner ---
+        const cookieBanner = document.getElementById('cookie-banner');
+        const acceptCookiesButton = document.getElementById('accept-cookies');
+
+        if (cookieBanner && !localStorage.getItem('cookiesAccepted')) {
+            cookieBanner.classList.remove('hidden');
+        }
+
+        if (acceptCookiesButton) {
+            acceptCookiesButton.addEventListener('click', () => {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieBanner.style.display = 'none';
+            });
+        }
+        
+        // --- Notify Me Form (with Formspree) ---
+        const notifyForm = document.getElementById('notify-form');
+        const successMessage = document.getElementById('form-success-message');
+        const errorMessage = document.getElementById('form-error-message');
+
+        if (notifyForm) {
+            notifyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = new FormData(form);
+                
+                fetch(form.action, {
+                    method: form.method,
+                    body: data,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        successMessage.classList.remove('hidden');
+                        errorMessage.classList.add('hidden');
+                        form.reset();
+                        setTimeout(() => {
+                            successMessage.classList.add('hidden');
+                        }, 4000);
+                    } else {
+                        errorMessage.classList.remove('hidden');
+                        successMessage.classList.add('hidden');
+                         setTimeout(() => {
+                            errorMessage.classList.add('hidden');
+                        }, 4000);
+                    }
+                }).catch(error => {
+                    errorMessage.classList.remove('hidden');
+                    successMessage.classList.add('hidden');
+                     setTimeout(() => {
+                        errorMessage.classList.add('hidden');
+                    }, 4000);
+                });
+            });
+        }
+
+    </script>
+</body>
+
+</html>
+
